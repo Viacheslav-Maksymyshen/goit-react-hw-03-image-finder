@@ -18,9 +18,9 @@ export class App extends Component {
     page: 1,
     showModal: false,
     showLoader: false,
+    showloadMore: false,
     error: null,
     largeImage: {},
-    total: 0,
   };
 
   // componentDidMount() {
@@ -31,18 +31,21 @@ export class App extends Component {
   componentDidUpdate(_, prevState) {
     const prevQuery = prevState.searchQuery;
     const naxtQuery = this.state.searchQuery;
-    if (prevQuery !== naxtQuery) {
+    const prevPage = prevState.page;
+    const naxtPage = this.state.page;
+
+    if (prevQuery !== naxtQuery || prevPage !== naxtPage) {
       this.fetchGallary();
     }
   }
 
   fetchGallary = async () => {
     const { searchQuery, page } = this.state;
-    const perPage = 12;
+
     this.setState({ showLoader: true });
     try {
       const data = await fetchDataApi(searchQuery, page);
-      const totalPages = Math.ceil(data.totalHits / perPage);
+      const totalPages = Math.ceil(data.totalHits / 12);
 
       if (data.hits.length === 0) {
         return toast.error("Sorry, we do not have any images for your request");
@@ -50,13 +53,17 @@ export class App extends Component {
       if (page === 1) {
         toast.success(`We found ${data.totalHits} images.`);
       }
-      if (page === totalPages) {
+      if (page === totalPages && page > 1) {
+        this.setState({ showloadMore: false });
         toast.info("You've reached the end of search results.");
+      }
+      if (page < totalPages) {
+        this.setState({ showloadMore: true });
+      } else {
+        this.setState({ showloadMore: false });
       }
       this.setState((prevState) => ({
         gallery: [...prevState.gallery, ...data.hits],
-        page: prevState.page + 1,
-        total: data.total,
       }));
       this.scrollToDown();
     } catch (error) {
@@ -91,37 +98,37 @@ export class App extends Component {
     this.toggleModal();
   };
 
-  showLoadMore = () => {
-    const { total, page } = this.state;
-    return Math.ceil(total / 12) !== page - 1;
+  onLoadMore = () => {
+    this.setState(({ page }) => {
+      return {
+        page: page + 1,
+      };
+    });
   };
 
   render() {
-    const { error, showLoader, showModal, gallery, largeImage } = this.state;
-    const showLoadMore = this.showLoadMore();
+    const { error, showLoader, showModal, gallery, largeImage, showloadMore } =
+      this.state;
+    const { onLoadMore, handleFormSubmit, toggleModal, handleOpenPicture } =
+      this;
     return (
       <div className={st.App}>
-        <Searchbar onSubmit={this.handleFormSubmit} />
+        <Searchbar onSubmit={handleFormSubmit} />
 
         {error && <p>{error.message}</p>}
 
         {gallery.length > 0 && (
-          <ImageGallery
-            gallery={gallery}
-            onOpenPicture={this.handleOpenPicture}
-          />
+          <ImageGallery gallery={gallery} onOpenPicture={handleOpenPicture} />
         )}
 
         {showLoader && <Loader />}
-
-        {gallery.length > 0 && !showLoader && showLoadMore && (
-          <Button onLoadMore={this.fetchGallary} />
-        )}
-
+        {showloadMore && <Button onLoadMore={onLoadMore} />}
         {showModal && (
-          <Modal onClose={this.toggleModal}>
-            <img src={largeImage.largeImageURL} alt={largeImage.tags} />
-          </Modal>
+          <Modal
+            largeImage={largeImage.largeImageURL}
+            tags={largeImage.tags}
+            onClose={toggleModal}
+          />
         )}
         <ToastContainer />
       </div>

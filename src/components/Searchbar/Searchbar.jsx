@@ -25,12 +25,12 @@ export class Searchbar extends Component {
     }
 
     onSubmit(inputSearch);
-    this.reset();
+    // this.reset();
   };
 
-  reset = () => {
-    this.setState({ inputSearch: "" });
-  };
+  // reset = () => {
+  //   this.setState({ inputSearch: "" });
+  // };
 
   render() {
     return (
@@ -61,6 +61,6 @@ export class Searchbar extends Component {
   }
 }
 
-Searchbar.propTypes = { onSubmit: PropTypes.func };
+Searchbar.propTypes = { onSubmit: PropTypes.func.isRequired };
 
 export default Searchbar;

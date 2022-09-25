@@ -1,11 +1,11 @@
 import st from "./ImageGallery.module.css";
-import ImageGalleryItem from '../ImageGalleryItem/ImageGalleryItem';
-import PropTypes from 'prop-types';
+import ImageGalleryItem from "../ImageGalleryItem/ImageGalleryItem";
+import PropTypes from "prop-types";
 
 function ImageGallery({ gallery, onOpenPicture }) {
   return (
     <ul className={st.ImageGallery}>
-      {gallery.map(picture => (
+      {gallery.map((picture) => (
         <ImageGalleryItem
           key={picture.id}
           picture={picture}
@@ -17,8 +17,12 @@ function ImageGallery({ gallery, onOpenPicture }) {
 }
 
 ImageGallery.propTypes = {
-  gallery: PropTypes.arrayOf(PropTypes.object),
-  onOpenPicture: PropTypes.func,
+  onOpenPicture: PropTypes.func.isRequired,
+  gallery: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+    })
+  ),
 };
 
 export default ImageGallery;

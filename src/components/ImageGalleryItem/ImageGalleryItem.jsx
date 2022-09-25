@@ -20,8 +20,11 @@ function ImageGalleryItem({ picture, onOpenPicture }) {
 }
 
 ImageGalleryItem.propTypes = {
-  picture: PropTypes.object,
-  onOpenPicture: PropTypes.func,
+  onOpenPicture: PropTypes.func.isRequired,
+  picture: PropTypes.shape({
+    webformatURL: PropTypes.string.isRequired,
+    tags: PropTypes.string.isRequired,
+  }),
 };
 
 export default ImageGalleryItem;
